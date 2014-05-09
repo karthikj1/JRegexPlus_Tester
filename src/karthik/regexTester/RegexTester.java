@@ -29,6 +29,7 @@ public class RegexTester {
         
         final int NUM_TRIALS = 100;
         final boolean DO_TIMING = false;
+        final boolean DO_ORACLE = true;
         
         Matcher matchObj = null;
         java.util.regex.Matcher javaMatcher = null;
@@ -38,7 +39,7 @@ public class RegexTester {
         String inp;
         String regex, oracle_result_string;        
         int oracle_num_groups = 0;
-        boolean oracle_result = true;        
+        boolean oracle_result = false;        
                 
         Scanner scanner = null;
         
@@ -54,74 +55,89 @@ public class RegexTester {
             scanner.next();
         }
         while (scanner.hasNext()) {
-            try {
+            try
+                {
                 // read in data from test suite
                 regex = scanner.next();
-                if (regex.trim() == "") {
+                if (regex.trim() == "")
+                    {
                     break;
-                }
+                    }
                 inp = scanner.next();
-                if(scanner.hasNext())
+                if (scanner.hasNext())
                     scanner.next();
                 System.out.println("\r\n\r\n" + test_counter + ". Testing: " + regex + " with string " + inp);
-                
+
                 test_counter++;
-                if(DO_TIMING){
+                if (DO_TIMING)
+                    {
                     show_compile_stats(NUM_TRIALS, regex, inp);
                     show_search_stats(NUM_TRIALS, regex, inp);
-                }
-                
+                    }
+
                 matchObj = Pattern.compile(regex);
                 matchObj.match(inp);
-                
+
                 javaPattern = java.util.regex.Pattern.compile(regex);
-                javaMatcher = javaPattern.matcher(inp);  
-                oracle_result = javaMatcher.find();
-                
-                if (matchObj != null) {
+                javaMatcher = javaPattern.matcher(inp);
+                if (DO_ORACLE)
+                    oracle_result = javaMatcher.find();
+
+                if (matchObj != null)
+                    {
                     //   System.out.println("Final:\r\n " + matchObj.toString());
-                    
-                
-                oracle_result_string = "NO MATCH";
-                oracle_num_groups = 0;
 
-                    if (matchObj.match(inp)) {
-                        for (int r = 0; r < matchObj.matchCount(); r++) {
-                            
+                    oracle_result_string = (DO_ORACLE) ? "NO MATCH" : "DID NOT COMPARE TO ORACLE";
+                    oracle_num_groups = 0;
+
+                    if (matchObj.match(inp))
+                        {
+                        for (int r = 0; r < matchObj.matchCount(); r++)
+                            {
+
                             System.out.print("MATCHED: " + matchObj.groupCount(r) + " groups ");
-                                                        
-                            if (oracle_result) {
-                                oracle_result_string = javaMatcher.group();
-                                oracle_num_groups = javaMatcher.groupCount();  
-                                if(oracle_result_string.equals(matchObj.group(r,0)))
-                                    System.out.println("MATCHED oracle");
-                                else
-                                    System.out.println("DID NOT MATCH oracle");
-                            } else {
-                                System.out.println("DID NOT MATCH oracle");
-                                System.out.println("oracle groups = " + oracle_num_groups);
-                            }
 
+                            if (DO_ORACLE)
+                                {
+                                if (oracle_result)
+                                    {
+                                    oracle_result_string = javaMatcher.group();
+                                    oracle_num_groups = javaMatcher.groupCount();
+                                    if (oracle_result_string.equals(matchObj.group(r, 0)))
+                                        System.out.println("MATCHED oracle");
+                                    else
+                                        System.out.println("DID NOT MATCH oracle");
+                                    } else
+                                    {
+                                    System.out.println("DID NOT MATCH oracle");
+                                    System.out.println("oracle groups = " + oracle_num_groups);
+                                    }
+                                }
                             System.out.println("Matched string: " + matchObj.group(r, 0)
                                     + " oracle string: " + oracle_result_string);
-                            for (int i = 1; i <= matchObj.groupCount(r); i++) {
+                            for (int i = 1; i <= matchObj.groupCount(r); i++)
+                                {
                                 System.out.print("group " + i);
                                 System.out.print(": " + matchObj.group(r, i) + ", ");
-                                if(oracle_result){
-                                System.out.print("Oracle group " + i);
-                                System.out.print(": " + javaMatcher.group(i) + ", ");
-                                }                                
+
+                                if (DO_ORACLE && oracle_result)
+                                    {
+                                    System.out.print("Oracle group " + i);
+                                    System.out.print(": " + javaMatcher.group(i) + ", ");
+                                    }
+                                }
                             }
-                        }
-                    } else {
+                        } else
+                        {
                         System.out.print(" :does not match ");
-                        if (!oracle_result) 
-                            System.out.println("MATCHED oracle");
-                        else 
-                             System.out.println("DID NOT MATCH oracle");                                                    
+                        if (DO_ORACLE)
+                            if (!oracle_result)
+                                System.out.println("MATCHED oracle");
+                            else
+                                System.out.println("DID NOT MATCH oracle");
+                        }
                     }
-                }
-            } // try
+                } // try
             catch (MatcherException me) {
                 System.out.println("RegexTester:" + me.getMessage());
             }
