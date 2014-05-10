@@ -28,8 +28,8 @@ public class RegexTester {
         File output_file = new File("results.txt");
         
         final int NUM_TRIALS = 100;
-        final boolean DO_TIMING = false;
-        final boolean DO_ORACLE = true;
+        boolean DO_TIMING = false;
+        boolean DO_ORACLE = true;
         
         Matcher matchObj = null;
         java.util.regex.Matcher javaMatcher = null;
@@ -43,12 +43,24 @@ public class RegexTester {
                 
         Scanner scanner = null;
         
+        for(String arg: args){
+            if(arg.equals("-timing"))
+                DO_TIMING = true;            
+            
+            if(arg.equals("-no_oracle"))
+                DO_ORACLE = false;
+            
+            if(arg.charAt(0) != '-')
+                test_input_file = arg;            
+        }
+        
         try {            
             scanner = new Scanner(new File(test_input_file)).useDelimiter(";|;\\n|\\n");
             PrintStream printStream = new PrintStream(new FileOutputStream(output_file));
             System.setOut(printStream);
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
+            System.out.println("Usage: RegexTester [<test_input_filename>] [-timing] [-no_oracle]");
         }
         // skip over first line with column headings
         for (int r = 0; r < 3; r++) {
@@ -130,11 +142,14 @@ public class RegexTester {
                         } else
                         {
                         System.out.print(" :does not match ");
-                        if (DO_ORACLE)
+                        if (DO_ORACLE){
                             if (!oracle_result)
                                 System.out.println("MATCHED oracle");
                             else
                                 System.out.println("DID NOT MATCH oracle");
+                        }
+                        else
+                                System.out.println("DID NOT COMPARE TO ORACLE");
                         }
                     }
                 } // try
