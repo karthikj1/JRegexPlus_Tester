@@ -24,8 +24,9 @@ public class RegexTester {
      */
     public static void main(String[] args) {
 
-        String test_input_file = "regex_test_cases.txt";        
-        File output_file = new File("results.txt");
+        String test_input_file = "regex_test_cases.txt";  
+        String out_file = "results.txt";
+        File output_file = new File(out_file);
         
         final int NUM_TRIALS = 100;
         boolean DO_TIMING = false;
@@ -54,13 +55,18 @@ public class RegexTester {
                 test_input_file = arg;            
         }
         
+        
+        System.out.println("\r\nJRegexPlus regex engine by Karthik Jayaraman");
+        System.out.println("Usage: RegexTester [<test_input_filename>] [-timing] [-no_oracle]");
+        System.out.println("\r\nInput file with test cases - " + test_input_file);        
+        System.out.println("\r\nOutput published to file " + out_file);
+        
         try {            
             scanner = new Scanner(new File(test_input_file)).useDelimiter(";|;\\n|\\n");
             PrintStream printStream = new PrintStream(new FileOutputStream(output_file));
             System.setOut(printStream);
         } catch (IOException ioe) {
-            System.out.println(ioe.getMessage());
-            System.out.println("Usage: RegexTester [<test_input_filename>] [-timing] [-no_oracle]");
+            System.out.println(ioe.getMessage());            
         }
         // skip over first line with column headings
         for (int r = 0; r < 3; r++) {
@@ -217,4 +223,5 @@ public class RegexTester {
         endTime = System.currentTimeMillis();
         System.out.println(", java matched in " + (endTime - startTime) / NUM_TRIALS);
         }
+    
 }
