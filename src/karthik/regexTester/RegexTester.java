@@ -24,13 +24,13 @@ public class RegexTester {
      */
     public static void main(String[] args) {
 
-        String test_input_file = "regex_test_cases.txt";  
+        String test_input_file = "perl_test_cases.txt";  
         String out_file = "results.txt";
         File output_file = new File(out_file);
         
         final int NUM_TRIALS = 100;
         boolean DO_TIMING = false;
-        boolean DO_ORACLE = true;
+        boolean DO_ORACLE = false;
         
         Matcher matchObj = null;
         java.util.regex.Matcher javaMatcher = null;
@@ -46,18 +46,16 @@ public class RegexTester {
         
         for(String arg: args){
             if(arg.equals("-timing"))
-                DO_TIMING = true;            
+                DO_TIMING = DO_ORACLE = true;            
             
-            if(arg.equals("-no_oracle"))
-                DO_ORACLE = false;
+            if(arg.equals("-oracle"))
+                DO_ORACLE = true;
             
             if(arg.charAt(0) != '-')
                 test_input_file = arg;            
         }
         
-        
-        System.out.println("\r\nJRegexPlus regex engine by Karthik Jayaraman");
-        System.out.println("Usage: RegexTester [<test_input_filename>] [-timing] [-no_oracle]");
+        show_usage_syntax();
         System.out.println("\r\nInput file with test cases - " + test_input_file);        
         System.out.println("\r\nOutput published to file " + out_file);
         
@@ -223,5 +221,16 @@ public class RegexTester {
         endTime = System.currentTimeMillis();
         System.out.println(", java matched in " + (endTime - startTime) / NUM_TRIALS);
         }
+    
+    private static void show_usage_syntax(){
+                
+        System.out.println("\r\nJRegexPlus regex engine by Karthik Jayaraman");
+        System.out.println("Usage: RegexTester [<test_input_filename>] [-timing] [-oracle]");
+        System.out.println("[<test_input_filename>]  - Name of input file with test cases. Default is perl_test_cases.txt");
+        System.out.println("[-timing] - Processes regex with java.util.regex engine and calculates running time comparison");
+        System.out.println("[-oracle] - Processes regex with java.util.regex engine as a test oracle");
+        System.out.println("\r\n");
+        System.out.println("Results are published to results.txt by default");
+    }
     
 }
