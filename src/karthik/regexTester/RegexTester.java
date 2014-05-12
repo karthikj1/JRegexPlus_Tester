@@ -101,7 +101,7 @@ public class RegexTester {
 
                 if (matchObj != null)
                     {
-                    //   System.out.println("Final:\r\n " + matchObj.toString());
+                   //    System.out.println("Final:\r\n " + matchObj.toString());
 
                     oracle_result_string = (DO_ORACLE) ? "NO MATCH" : "DID NOT COMPARE TO ORACLE";
                     oracle_num_groups = 0;
@@ -224,8 +224,8 @@ public class RegexTester {
     
     private static void show_usage_syntax(){
                 
-        System.out.println("\r\nJRegexPlus regex engine by Karthik Jayaraman");
-        System.out.println("Usage: RegexTester [<test_input_filename>] [-timing] [-oracle]");
+        System.out.println("\r\nJRegexPlus regex engine by Karthik Jayaraman\r\n");
+        System.out.println("Usage: RegexTester [<test_input_filename>] [-timing] [-oracle]\r\n");
         System.out.println("[<test_input_filename>]  - Name of input file with test cases. Default is perl_test_cases.txt");
         System.out.println("[-timing] - Processes regex with java.util.regex engine and calculates running time comparison");
         System.out.println("[-oracle] - Processes regex with java.util.regex engine as a test oracle");
