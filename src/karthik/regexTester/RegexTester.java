@@ -19,55 +19,53 @@ import karthik.regex.Pattern;
  */
 public class RegexTester {
 
-    /**
-     * @param args the command line argument regex
-     */
+   static String test_input_file = "perl_test_cases.txt";  
+   static String out_file = "results.txt";
+   static String search_text_file = "";
+   
+   static final int NUM_TRIALS = 100;
+   static boolean DO_TIMING = false;
+   static boolean DO_ORACLE = false;
+   static boolean SEARCH_FROM_FILE = false;
+   
+   static int Java_matcher_flags = java.util.regex.Pattern.DOTALL | java.util.regex.Pattern.UNIX_LINES;
+   
     public static void main(String[] args) {
-
-        String test_input_file = "perl_test_cases.txt";  
-        String out_file = "results.txt";
-        File output_file = new File(out_file);
-        
-        final int NUM_TRIALS = 100;
-        boolean DO_TIMING = false;
-        boolean DO_ORACLE = false;
-        
+                
         Matcher matchObj = null;
         java.util.regex.Matcher javaMatcher = null;
         java.util.regex.Pattern javaPattern;
-        int test_counter = 1;
+        int test_counter = 0;
         
         String inp;
+        String search_text = "";
         String regex, oracle_result_string;        
         int oracle_num_groups = 0;
-        boolean oracle_result = false;        
+        boolean oracle_result = false; 
+        boolean match_success = false;
                 
         Scanner scanner = null;
         
-        for(String arg: args){
-            if(arg.equals("-timing"))
-                DO_TIMING = DO_ORACLE = true;            
-            
-            if(arg.equals("-oracle"))
-                DO_ORACLE = true;
-            
-            if(arg.charAt(0) != '-')
-                test_input_file = arg;            
-        }
-        
+        parse_args(args);
         show_usage_syntax();
         System.out.println("\r\nInput file with test cases - " + test_input_file);        
-        System.out.println("\r\nOutput published to file " + out_file);
+        System.out.println("\r\nResults published to file " + out_file);
         
         try {            
+            File output_file = new File(out_file);        
             scanner = new Scanner(new File(test_input_file)).useDelimiter(";|;\\n|\\n");
             PrintStream printStream = new PrintStream(new FileOutputStream(output_file));
             System.setOut(printStream);
+            
+            if(SEARCH_FROM_FILE){
+                search_text = readFile(search_text_file);
+            }
+                
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());            
         }
         // skip over first line with column headings
-        for (int r = 0; r < 3; r++) {
+        for (int r = 0; r < ((SEARCH_FROM_FILE) ? 2 : 3); r++) {
             scanner.next();
         }
         while (scanner.hasNext()) {
@@ -79,34 +77,36 @@ public class RegexTester {
                     {
                     break;
                     }
-                inp = scanner.next();
+                
+                inp = (SEARCH_FROM_FILE) ? search_text : scanner.next();
+                
                 if (scanner.hasNext())
                     scanner.next();
-                System.out.println("\r\n\r\n" + test_counter + ". Testing: " + regex + " with string " + inp);
-
+                
                 test_counter++;
+            
+                System.out.print("\r\n\r\n" + test_counter + ". Testing: " + regex + " with string ");
+                System.out.println((SEARCH_FROM_FILE) ? "in file " + search_text_file : inp);
                 if (DO_TIMING)
                     {
                     show_compile_stats(NUM_TRIALS, regex, inp);
                     show_search_stats(NUM_TRIALS, regex, inp);
                     }
-
+            
                 matchObj = Pattern.compile(regex);
-                matchObj.match(inp);
+                match_success = matchObj.find(inp);
 
-                javaPattern = java.util.regex.Pattern.compile(regex);
+                javaPattern = java.util.regex.Pattern.compile(regex, Java_matcher_flags);
                 javaMatcher = javaPattern.matcher(inp);
                 if (DO_ORACLE)
                     oracle_result = javaMatcher.find();
 
-                if (matchObj != null)
-                    {
                    //    System.out.println("Final:\r\n " + matchObj.toString());
 
                     oracle_result_string = (DO_ORACLE) ? "NO MATCH" : "DID NOT COMPARE TO ORACLE";
                     oracle_num_groups = 0;
 
-                    if (matchObj.match(inp))
+                    if (match_success)
                         {
                         for (int r = 0; r < matchObj.matchCount(); r++)
                             {
@@ -154,8 +154,8 @@ public class RegexTester {
                         }
                         else
                                 System.out.println("DID NOT COMPARE TO ORACLE");
-                        }
-                    }
+                        }   
+                    System.out.println("");
                 } // try
             catch (MatcherException me) {
                 System.out.println("RegexTester:" + me.getMessage());
@@ -188,7 +188,7 @@ public class RegexTester {
         startTime = System.currentTimeMillis();
         for (int r = 0; r < NUM_TRIALS; r++)
             {
-            javaPattern = java.util.regex.Pattern.compile(regex);
+            javaPattern = java.util.regex.Pattern.compile(regex, Java_matcher_flags);
             javaMatcher = javaPattern.matcher(inp);
             }
         endTime = System.currentTimeMillis();
@@ -203,12 +203,15 @@ public class RegexTester {
         java.util.regex.Pattern javaPattern;
 
         matchObj = Pattern.compile(regex);
-        javaPattern = java.util.regex.Pattern.compile(regex);
+        javaPattern = java.util.regex.Pattern.compile(regex, Java_matcher_flags);
         javaMatcher = javaPattern.matcher(inp);
 
         startTime = System.currentTimeMillis();
-        for (int r = 0; r < NUM_TRIALS; r++)
-            matchObj.match(inp);
+        for (int r = 0; r < NUM_TRIALS; r++){
+            matchObj.reset();
+            matchObj.find(inp);
+        }
+        
         endTime = System.currentTimeMillis();
         System.out.print("KJ matched in " + (endTime - startTime) / NUM_TRIALS);
 
@@ -225,12 +228,75 @@ public class RegexTester {
     private static void show_usage_syntax(){
                 
         System.out.println("\r\nJRegexPlus regex engine by Karthik Jayaraman\r\n");
-        System.out.println("Usage: RegexTester [<test_input_filename>] [-timing] [-oracle]\r\n");
+        System.out.println("Backreferences without backtracking\r\n");
+        System.out.println("Usage: RegexTester [<test_input_filename>] [-timing] [-oracle] "
+                + "[-text <search_text_filename>] [-output <output_file_name>]\r\n");
         System.out.println("[<test_input_filename>]  - Name of input file with test cases. Default is perl_test_cases.txt");
         System.out.println("[-timing] - Processes regex with java.util.regex engine and calculates running time comparison");
-        System.out.println("[-oracle] - Processes regex with java.util.regex engine as a test oracle");
+        System.out.println("[-output <output_file_name>] - Name of output file for results");
+        System.out.println("[-text <text_file_name>] - Name of file containing text to search for all regexes");
         System.out.println("\r\n");
-        System.out.println("Results are published to results.txt by default");
+        
     }
     
+    private static void parse_args(String[] args){
+        int ctr = 0;
+        String arg;
+        
+        while(ctr < args.length)
+            {
+            arg = args[ctr++];
+            if(arg.equalsIgnoreCase("-timing")){
+                DO_TIMING = DO_ORACLE = true;   
+                continue;
+            }
+            
+            if(arg.equalsIgnoreCase("-oracle")){
+                DO_ORACLE = true;
+                continue;
+            }
+            
+            if(arg.equalsIgnoreCase("-output")){
+                if(ctr < args.length){
+                    out_file = args[ctr++];
+                    continue;
+                }
+                else {
+                    System.out.println("ERROR: -output must be followed by output file name");
+                    show_usage_syntax();
+                    System.exit(-1);
+                }
+            }
+            
+             if(arg.equalsIgnoreCase("-text")){
+                if(ctr < args.length){
+                    SEARCH_FROM_FILE = true;
+                    search_text_file = args[ctr++];
+                    continue;
+                }
+                else {
+                    System.out.println("ERROR: -text must be followed by search text file name");
+                    show_usage_syntax();
+                    System.exit(-1);
+                }
+            }
+            
+            if(arg.charAt(0) != '-')
+                test_input_file = arg;            
+        }
+        
+    }
+    
+        private static String readFile(String filename) throws IOException{
+            StringBuffer sb = new StringBuffer("");
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            int i;
+            
+            while((i = br.read()) != -1)
+                sb.append((char) i);
+            
+            return sb.toString();
+            
+        }
 }
+
