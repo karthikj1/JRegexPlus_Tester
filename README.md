@@ -18,4 +18,5 @@ The first command publishes the output to results.txt by default unless -output 
 The second runs the regex tests on a "large" text file specified by -text. Note the input file formats are slightly different
 when specifying -text. See LoremRegex.txt and perl_test_cases.txt to compare.
 
+JRegex_only_tests.txt contains examples of regexes that would make a traditional backtracking NFA crash. When testing expressions like these, do NOT use the -oracle flag in the command line.
 
