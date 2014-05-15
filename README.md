@@ -3,11 +3,11 @@ JRegexPlus_Tester
 
 Test files for JRegexPlus regular expression engine
 
-Usage: RegexTester ["test_input_filename"] [-timing] [-oracle] [-text "search_text_filename"] [-output "output_file_name"]
+Usage: RegexTester [\<test_input_filename\>] [-timing] [-oracle] [-text \<search_text_filename\>] [-output \<output_file_name\>]
 
 To get started quickly, compile RegexTester.java and use on the command line with the arguments
 
-java -jar "yourpath"/JRegexPlus_Tester.jar "perl_test_cases.txt" -oracle
+java -jar \<yourpath\>/JRegexPlus_Tester.jar "perl_test_cases.txt" -oracle
 
 or
 
