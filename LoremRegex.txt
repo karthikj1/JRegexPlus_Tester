@@ -1,0 +1,3 @@
+Regex;
+(X|y)(a|bcdef|g|ab|c|d|e|efg|fg)*\1;
+.(f|o){1,2}(.+)*(\2)+.;
