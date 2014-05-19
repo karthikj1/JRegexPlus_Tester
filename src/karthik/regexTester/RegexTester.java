@@ -131,6 +131,7 @@ public class RegexTester {
                                 }
                             System.out.println("Matched string: " + matchObj.group(r, 0)
                                     + " oracle string: " + oracle_result_string);
+                            boolean group_match = true;
                             for (int i = 1; i <= matchObj.groupCount(r); i++)
                                 {
                                 System.out.print("group " + i);
@@ -139,7 +140,9 @@ public class RegexTester {
                                 if (DO_ORACLE && oracle_result)
                                     {
                                     System.out.print("Oracle group " + i);
-                                    System.out.print(": " + javaMatcher.group(i) + ", ");
+                                    System.out.print(": " + javaMatcher.group(i) + "\r\n");
+                                    if(!javaMatcher.group(i).equals(matchObj.group(r,i)))
+                                        System.out.println("Group " + i + " DID NOT MATCH ");
                                     }
                                 }
                             }
