@@ -27,6 +27,7 @@ public class RegexTester {
    static boolean DO_TIMING = false;
    static boolean DO_ORACLE = false;
    static boolean SEARCH_FROM_FILE = false;
+   static boolean FIND_ALL = false;
    
    static int Java_matcher_flags = java.util.regex.Pattern.DOTALL | java.util.regex.Pattern.UNIX_LINES;
    
@@ -98,6 +99,7 @@ public class RegexTester {
 
                 javaPattern = java.util.regex.Pattern.compile(regex, Java_matcher_flags);
                 javaMatcher = javaPattern.matcher(inp);
+                do{
                 if (DO_ORACLE)
                     oracle_result = javaMatcher.find();
 
@@ -158,6 +160,7 @@ public class RegexTester {
                                 System.out.println("DID NOT COMPARE TO ORACLE");
                         }   
                     System.out.println("");
+                    } while(FIND_ALL && matchObj.find(inp));
                 } // try
             catch (MatcherException me) {
                 System.out.println("RegexTester:" + me.getMessage());
@@ -237,6 +240,7 @@ public class RegexTester {
         System.out.println("[-timing] - Processes regex with java.util.regex engine and calculates running time comparison");
         System.out.println("[-output <output_file_name>] - Name of output file for results");
         System.out.println("[-text <text_file_name>] - Name of file containing text to search for all regexes");
+        System.out.println("[-all] - Find all matches in search text(default finds just first match)");
         System.out.println("\r\n");
         
     }
@@ -255,6 +259,11 @@ public class RegexTester {
             
             if(arg.equalsIgnoreCase("-oracle")){
                 DO_ORACLE = true;
+                continue;
+            }
+            
+            if(arg.equalsIgnoreCase("-all")){
+                FIND_ALL = true;
                 continue;
             }
             
