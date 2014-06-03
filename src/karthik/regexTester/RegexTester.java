@@ -113,7 +113,7 @@ public class RegexTester {
                         for (int r = 0; r < matchObj.matchCount(); r++)
                             {
 
-                            System.out.print("MATCHED: " + matchObj.groupCount(r) + " groups ");
+                            System.out.print("MATCHED: " + matchObj.groupCount(r) + " groups ");                                
 
                             if (DO_ORACLE)
                                 {
